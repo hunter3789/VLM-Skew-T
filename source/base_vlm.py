@@ -9,7 +9,7 @@ import torch
 from transformers import AutoModelForVision2Seq, AutoProcessor, AutoConfig
 from transformers.image_utils import load_image
 
-from data import VQADataset, benchmark
+from data import VQADataset
 
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
@@ -18,7 +18,6 @@ class BaseVLM:
         model_cache = "/home/cloud-user/LLM/model_cache"
         model_id = "HuggingFaceTB/SmolVLM-256M-Instruct"
 
-        #model_path = get_snapshot_path(model_cache, model_id)
         model_path = "/home/cloud-user/LLM/model_cache/SmolVLM-Instruct/"
 
         self.processor = AutoProcessor.from_pretrained(model_path, local_files_only=True)
@@ -87,27 +86,6 @@ class BaseVLM:
         messages = []
         for p, q in zip(system_prompts, questions):
             if use_images:
-                '''
-                # Create a message with an image token placeholder
-                message = [
-                    {
-                        "role": "system",
-                        "content": [
-                        #   {"type": "text", "text": "Please analyze the weather based on the provided Skew-T log-P diagram and the brief atmospheric sounding summary. Reason carefully and explain your conclusions.\nBased on your reasoning, please provide the predicted precipitation probability category (Low, Moderate, High, or Very High)."}
-                        #   {"type": "text", "text": "You are a weather forecaster analyzing atmospheric soundings shown in Skew-T log-P diagrams.\n\n- Lower layer: 1000–850 hPa\n- Mid layer: 850–500 hPa\n- Upper layer: 500–250 hPa\n\nDiagram legend:\n- Red line: temperature\n- Green line: dew point temperature\n- Shaded blue area: CAPE (Convective Available Potential Energy)\n- Shaded yellow area: CIN (Convective Inhibition)\n\nMeteorological interpretation tips:\n- When the red and green lines are close, the atmosphere is moist.\n- The LFC (Level of Free Convection) is the lowest point of the blue area.\n- The EL (Equilibrium Level) is the highest point of the blue area.\n- Wind barbs are displayed on the right side. If they rotate clockwise with height, it indicates veering winds; if counterclockwise, it indicates backing.\n\nPlease describe the atmospheric profile based on the provided Skew-T log-P diagram and the brief atmospheric sounding summary. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High."}
-                            {"type": "text", "text": "You are a weather forecaster analyzing atmospheric soundings shown in Skew-T log-P diagrams.\n\n- Lower layer: 1000–850 hPa\n- Mid layer: 850–500 hPa\n- Upper layer: 500–250 hPa\n\nDiagram legend:\n- Red line: temperature\n- Green line: dew point temperature\n- Shaded blue area: CAPE (Convective Available Potential Energy)\n- Shaded yellow area: CIN (Convective Inhibition)\n\nMeteorological interpretation tips:\n- When the red and green lines are close, the atmosphere is moist.\n- The LFC (Level of Free Convection) is the lowest point of the blue area.\n- The EL (Equilibrium Level) is the highest point of the blue area.\n- Wind barbs are displayed on the right side. If they rotate clockwise with height, it indicates veering winds; if counterclockwise, it indicates backing.\n\nPlease describe the atmospheric profile based on the provided Skew-T log-P diagram. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High."}
-                        #   {"type": "text", "text": "You are a weather forecaster analyzing atmospheric soundings shown in Skew-T log-P diagrams.\n\n- Lower layer: 1000–850 hPa\n- Mid layer: 850–500 hPa\n- Upper layer: 500–250 hPa\n\nDiagram legend:\n- Red line: temperature\n- Green line: dew point temperature\n- Shaded blue area: CAPE (Convective Available Potential Energy)\n- Shaded yellow area: CIN (Convective Inhibition)\n\nMeteorological interpretation tips:\n- When the red and green lines are close, the atmosphere is moist.\n- The LFC (Level of Free Convection) is the lowest point of the blue area.\n- The EL (Equilibrium Level) is the highest point of the blue area.\n- Wind barbs are displayed on the right side. If they rotate clockwise with height, it indicates veering winds; if counterclockwise, it indicates backing.\n\nReason carefully, and please provide the predicted precipitation probability category: Low, Moderate, High, or Very High."}
-                        ]
-                    },
-                    {
-                        "role": "user",
-                        "content": [
-                           {"type": "image"},  # Correct type to insert image token
-                           #{"type": "text", "text": self.format_prompt(q)},
-                     ]
-                    }
-                ]  
-                '''
                 # Create a message with an image token placeholder
                 message = [
                     {
