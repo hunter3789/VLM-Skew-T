@@ -13,13 +13,6 @@ from data import VQADataset, benchmark
 
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
-def get_snapshot_path(base_dir, model_id):
-    safe_model_id = model_id.replace("/", "--")
-    model_dir = os.path.join(base_dir, f"models--{safe_model_id}")
-    snapshots_dir = os.path.join(model_dir, "snapshots")
-    snapshot = os.listdir(snapshots_dir)[0]  # Take the first snapshot
-    return os.path.join(snapshots_dir, snapshot)
-
 class BaseVLM:
     def __init__(self, checkpoint="HuggingFaceTB/SmolVLM-256M-Instruct"):
         model_cache = "/home/cloud-user/LLM/model_cache"
