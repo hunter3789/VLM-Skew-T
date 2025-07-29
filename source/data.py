@@ -21,16 +21,6 @@ class VQADataset:
         # Load all QA pairs for the split
         self.qa_pairs = []
 
-        '''
-        # Find all QA pair files for the split
-        qa_files = list(self.data_dir.glob(f"{split}/*_qa_pairs.json"))
-
-        for qa_file in qa_files:
-            with open(qa_file) as f:
-                qa_pairs = json.load(f)
-                self.qa_pairs.extend(qa_pairs)
-        '''
-
         with (DATA_DIR / f"{split}.jsonl").open() as f:
             for line in f:
                 self.qa_pairs.append(json.loads(line))
@@ -64,121 +54,6 @@ class VQADataset:
             "question": qa_pair["user"],
             "answer": qa_pair["response"],
         }
-
-
-@dataclass
-class VQABenchmarkResult:
-    @dataclass
-    class Sample:
-        image_path: str
-        question: str
-        model_answer: str
-        correct_answer: str
-        is_correct: bool
-
-    accuracy: float
-    samples: list[Sample]
-
-    @classmethod
-    def from_answers(
-        cls, answers: list[str], gt_dataset: list[dict[str, Any]], max_samples: int = None
-    ) -> "VQABenchmarkResult":
-        """
-        Create a benchmark result from model answers.
-
-        Args:
-            answers: List of model answers
-            dataset: Dataset used for evaluation
-
-        Returns:
-            Benchmark result
-        """
-        samples = []
-        correct_count = 0
-
-        if max_samples is None:
-            max_samples = min(len(answers), len(gt_dataset))
-        else:
-            max_samples = len(gt_dataset)
-
-        for i in range(max_samples):
-            item = gt_dataset[i]
-            answer = answers[i]
-
-            # For string answers, we use exact matching
-            answer_len = len(item["answer"].strip())
-            is_correct = answer.strip().lower()[:answer_len] == item["answer"].strip().lower()[:answer_len]
-            samples.append(
-                cls.Sample(
-                    image_path=item["image_path"],
-                    question=item["question"],
-                    model_answer=answer,
-                    correct_answer=item["answer"],
-                    is_correct=is_correct,
-                )
-            )
-
-            if is_correct:
-                correct_count += 1
-
-        print(correct_count)
-        print(len(samples))
-
-        return cls(accuracy=correct_count / len(samples) if samples else 0, samples=samples)
-
-
-def benchmark(model, dataset: VQADataset, max_samples: int = None) -> VQABenchmarkResult:
-    """
-    Benchmark a VLM model on a dataset.
-
-    Args:
-        model: VLM model to evaluate
-        dataset: Dataset to evaluate on
-        max_samples: Maximum number of samples to evaluate
-
-    Returns:
-        Benchmark result
-    """
-
-    if len(dataset) == 0 or max_samples == 0:
-        raise ValueError("Dataset or model is empty")
-
-    # Limit the number of samples if specified
-    if max_samples is not None:
-        dataset_size = min(len(dataset), max_samples)
-    else:
-        dataset_size = len(dataset)
-
-    import random
-
-    sample_indices = random.sample(range(len(dataset)), dataset_size)
-
-    # Extract questions and image paths
-    questions = [dataset[i]["question"] for i in sample_indices]
-    image_paths = [dataset[i]["image_path"] for i in sample_indices]
-    answers = [dataset[i]["answer"] for i in sample_indices]
-    # Get model answers
-    responses = []
-    gt_dataset = []
-    mini_batch_size = 32
-    import tqdm
-
-    for i in tqdm.tqdm(range(0, dataset_size, mini_batch_size)):  # Process in batches
-        batch_size = min(mini_batch_size, dataset_size - i)
-        batch_questions = questions[i : i + batch_size]
-        batch_image_paths = image_paths[i : i + batch_size]
-        batch_indices = sample_indices[i : i + batch_size]
-
-        batch_responses = model.answer(batch_image_paths, batch_questions)
-        responses.extend(batch_responses)
-        gt_dataset.extend([dataset[i] for i in batch_indices])
-        print(f"\tProcessed {i + batch_size} samples")
-        print(f"\tQuestions: {batch_questions}")
-        print(f"\tResponses: {batch_responses}")
-        print(f"\tAnswers: {answers[i : i + batch_size]}")
-
-    return VQABenchmarkResult.from_answers(responses, gt_dataset, max_samples)
-
 
 if __name__ == "__main__":
     # Test the dataset

@@ -25,11 +25,6 @@ class BaseVLM:
         # important to set this to False, otherwise too many image tokens
         self.processor.image_processor.do_image_splitting = False
 
-        #config = AutoConfig.from_pretrained(model_path, local_files_only=True)
-
-        #if getattr(config, "parallelization_style", None) is None:
-        #    config.parallelization_style = "none"
-
         self.model = AutoModelForVision2Seq.from_pretrained(
             model_path,
             torch_dtype=torch.bfloat16,
@@ -97,7 +92,7 @@ class BaseVLM:
                     {
                         "role": "user",
                         "content": [
-                           {"type": "image"},  # Correct type to insert image token
+                           {"type": "image"},  # Insert image token
                            {"type": "text", "text": self.format_prompt(q)},
                         ]
                     }
@@ -107,9 +102,7 @@ class BaseVLM:
                     {
                         "role": "system",
                         "content": [
-                           #{"type": "text", "text": "Please analyze the weather based on the provided atmospheric sounding summary. Reason carefully and explain your conclusions.\nBased on your reasoning, please provide the predicted precipitation probability category (Low, Moderate, High, or Very High)."}
-                           {"type": "text", "text": "First, extract numeric values from the given texts.\nNext, analyze the weather based on the numeric values from the atmospheric sounding summary. Reason carefully and explain your conclusions.\nBased on your reasoning, please provide the predicted precipitation probability category (Low, Moderate, High, or Very High)."}
-                        ]
+                            {"type": "text", "text": self.format_prompt(p)}                        ]
                     },
                     {
                         "role": "user",
@@ -123,7 +116,6 @@ class BaseVLM:
 
         # Prepare inputs
         prompts = [self.processor.apply_chat_template(message, add_generation_prompt=True) for message in messages]
-        #print(prompts)
         if use_images:
             inputs = self.processor(
                 text=prompts, images=images, return_tensors="pt", padding=True, truncation=True, padding_side="left"
@@ -135,7 +127,6 @@ class BaseVLM:
         # Set generation parameters
         generate_params = {
             "max_new_tokens": 1000,
-            #"max_new_tokens": 500,
             "do_sample": temperature > 0,
             "eos_token_id": self.processor.tokenizer.eos_token_id,
         }
@@ -186,46 +177,6 @@ class BaseVLM:
         """
         return self.batched_generate(image_paths, system_prompts, questions, temperature = temperature, use_images = use_images)
 
-    def parse_answer(self, answer: str) -> float:
-        """
-        Parse the <answer></answer> tag and return a float.
-        This function is somewhat robust to output errors (e.g. missing </answer> tags).
-        """
-        try:
-            return answer.split("the probability of precipitation is")[1].split(".")[0].lower()
-            #keywords = ["very high", "high", "moderate", "low"]
-            #for keyword in keywords:
-            #    if keyword in answer.lower():
-            #        return keyword
-            #print(answer)
-            #return None
-        except (IndexError, ValueError):
-            return None
-
-'''
-def test_model():
-    # Test the BaseVLM with a sample image and question
-    model = BaseVLM()
-
-    # Use a sample image from the internet
-    current_dir = Path(__file__).parent
-    image_path_1 = str((current_dir / "./data/train/skew_184_2022061506.png").resolve())
-    image_path_2 = str((current_dir / "./data/train/skew_108_2024080409.png").resolve())
-    #print(image_path_1)
-
-    # Test multiple questions
-    questions = ["CAPE: 297 J/kg\nCIN: 100 J/kg\nLCL: 852 hPa\nLFC: 772 hPa\nEL: 313 hPa\nLower layer: Dry, Wind Backing\nMid layer: Dry, Wind Backing\nUpper layer: Dry, Wind Backing",
-                 "CAPE: 1086 J/kg\nCIN: 184 J/kg\nLCL: 857 hPa\nLFC: 738 hPa\nEL: 199 hPa\nLower layer: Dry, Wind Veering\nMid layer: Dry, Wind Backing\nUpper layer: Dry"]
-    print("\nTesting multiple questions:")
-    #print("Provide an analysis of atmospheric sounding profile.")
-    #answer = model.generate(image_path_1, "Provide an analysis of atmospheric sounding profile.")
-    #print(answer)
-    answers = model.answer([image_path_1, image_path_2], questions, use_images = True)
-    for q, a in zip(questions, answers):
-        print(f"\nQ: {q}")
-        print(f"\nA: {a}")
-'''
-
 def test_model():
     testset = VQADataset("valid_vlm_diagram_QA")
     vlm = BaseVLM()
@@ -235,7 +186,6 @@ def test_model():
 
     print(d["question"])
     image_path = str(d["image_path"])
-    #print(image_path)
 
     answer = vlm.answer([image_path], [d["system"]], [d["question"]], temperature = 0, use_images=True)[0]
     print("")
@@ -245,7 +195,4 @@ def test_model():
     print(d["answer"])
 
 if __name__ == "__main__":
-    #from fire import Fire
-
-    #Fire({"test": test_model, "benchmark": test_benchmark})
     test_model()
