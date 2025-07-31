@@ -6,7 +6,6 @@ from typing import Any
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
-
 class VQADataset:
     def __init__(self, split: str, data_dir: Path = None, max_samples: int = None):
         """
