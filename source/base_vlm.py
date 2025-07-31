@@ -54,6 +54,7 @@ class BaseVLM:
         num_return_sequences: Optional[int] = None,
         temperature: float = 0,
         use_images = True,
+        use_image_path = True
     ) -> Union[List[str], List[List[str]]]:
         """
         Batched version of generate method.
@@ -69,7 +70,10 @@ class BaseVLM:
         """
         # Load images
         if use_images:
-            images = [[load_image(img_path)] for img_path in image_paths]
+            if use_image_path:
+                images = [[load_image(img_path)] for img_path in image_paths]
+            else:                
+                images = [[img_path] for img_path in image_paths]
 
         # Create input messages with proper image tokens
         messages = []
@@ -158,7 +162,7 @@ class BaseVLM:
 
         return cleaned_texts
 
-    def answer(self, image_paths, system_prompts, questions, temperature: float = 0, use_images = True) -> list[str]:
+    def answer(self, image_paths, system_prompts, questions, temperature: float = 0, use_images = True, use_image_path = True) -> list[str]:
         """
         Answer multiple questions about an image.
 
@@ -169,7 +173,7 @@ class BaseVLM:
         Returns:
             List of answers
         """
-        return self.batched_generate(image_paths, system_prompts, questions, temperature = temperature, use_images = use_images)
+        return self.batched_generate(image_paths, system_prompts, questions, temperature = temperature, use_images = use_images, use_image_path = use_image_path)
 
 def test_model():
     testset = VQADataset("valid_vlm_image")
