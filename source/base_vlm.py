@@ -14,7 +14,7 @@ from data import VQADataset
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
 class BaseVLM:
-    def __init__(self, checkpoint="HuggingFaceTB/SmolVLM-256M-Instruct"):
+    def __init__(self, checkpoint="HuggingFaceTB/SmolVLM-Instruct"):
         self.processor = AutoProcessor.from_pretrained(checkpoint)
 
         # important to set this to False, otherwise too many image tokens
