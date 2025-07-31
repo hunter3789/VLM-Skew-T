@@ -15,46 +15,6 @@ from data import VQADataset
 
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
-#processor = AutoProcessor.from_pretrained("HuggingFaceTB/SmolVLM-256M-Instruct")
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-os.environ["HF_DATASETS_OFFLINE"] = "1"
-os.environ["TRANSFORMERS_OFFLINE"] = "1"
-os.environ["HF_HUB_OFFLINE"] = "1"
-os.environ["HF_OFFLINE"] = "1"
-
-def load(model_name: str = "vlm_model") -> BaseVLM:
-    from pathlib import Path
-
-    from peft import PeftModel
-
-    model_path = Path(__file__).parent / model_name
-
-    vlm = BaseVLM()
-    vlm.model = PeftModel.from_pretrained(vlm.model, model_path).to(vlm.device)
-    vlm.model.eval()
-
-    return vlm
-
-
-def custom_data_collator(features: list[dict[str, torch.Tensor]]) -> dict[str, torch.Tensor]:
-    # Get max sequence length
-    max_length = max(f["input_ids"].shape[0] for f in features)
-
-    def pad_tensor(tensor, pad_value):
-        return torch.cat([tensor, torch.full((max_length - tensor.shape[0],), pad_value, dtype=tensor.dtype)])
-
-    input_ids = torch.stack([pad_tensor(f["input_ids"], pad_value=processor.tokenizer.eos_token_id) for f in features])
-    attention_mask = torch.stack([pad_tensor(f["attention_mask"], pad_value=0) for f in features])
-    labels = torch.stack([pad_tensor(f["labels"], pad_value=-100) for f in features])
-    pixel_values = torch.stack([f["pixel_values"] for f in features])  # assume all are same shape
-
-    return {
-        "input_ids": input_ids,
-        "attention_mask": attention_mask,
-        "labels": labels,
-        "pixel_values": pixel_values,
-    }
-
 class CustomDataCollator:
     def __init__(self, processor, use_images = True):
         self.processor = processor
@@ -291,37 +251,10 @@ def train(
 
     return model, processor
 
-
-def evaluate(model: nn.Module, val_loader: DataLoader) -> float:
-    """
-    Evaluate the model on the validation set.
-
-    Args:
-        model: Model to evaluate
-        val_loader: Validation data loader
-
-    Returns:
-        Average validation loss
-    """
-    model.eval()
-    val_loss = 0
-
-    with torch.no_grad():
-        for batch in val_loader:
-            # Move batch to device
-            batch = {k: v.to(DEVICE) for k, v in batch.items()}
-
-            # Forward pass
-            outputs = model(**batch)
-            val_loss += outputs.loss.item()
-
-    model.train()
-    return val_loss / len(val_loader)
-
 def test_model(ckpt_path: str):
     import random
 
-    testset = VQADataset("valid_vlm_diagram_QA")
+    testset = VQADataset("valid_vlm_image")
     vlm = BaseVLM()
 
     # Load the model with LoRA adapters
@@ -331,9 +264,6 @@ def test_model(ckpt_path: str):
 
     d = random.sample(testset.qa_pairs, 10)
 
-    #print(d["question"])
-    #image_path = str(d["image_path"])
-    #print(image_path)
     image_path = [str(o["image"]) for o in d]
     prompts = [o["system"] for o in d]
     questions = [o["user"] for o in d]
