@@ -15,24 +15,18 @@ DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is
 
 class BaseVLM:
     def __init__(self, checkpoint="HuggingFaceTB/SmolVLM-256M-Instruct"):
-        model_cache = "/home/cloud-user/LLM/model_cache"
-        model_id = "HuggingFaceTB/SmolVLM-256M-Instruct"
-
-        model_path = "/home/cloud-user/LLM/model_cache/SmolVLM-Instruct/"
-
-        self.processor = AutoProcessor.from_pretrained(model_path, local_files_only=True)
+        self.processor = AutoProcessor.from_pretrained(checkpoint)
 
         # important to set this to False, otherwise too many image tokens
         self.processor.image_processor.do_image_splitting = False
 
         self.model = AutoModelForVision2Seq.from_pretrained(
-            model_path,
+            checkpoint,
             torch_dtype=torch.bfloat16,
             _attn_implementation="eager",
-            local_files_only=True,
         ).to(DEVICE)
         self.device = DEVICE
-
+        
     def format_prompt(self, question: str) -> str:
         """
         Format the question into a prompt for the VLM.
