@@ -26,7 +26,7 @@ class BaseVLM:
             _attn_implementation="eager",
         ).to(DEVICE)
         self.device = DEVICE
-        
+
     def format_prompt(self, question: str) -> str:
         """
         Format the question into a prompt for the VLM.
@@ -172,7 +172,7 @@ class BaseVLM:
         return self.batched_generate(image_paths, system_prompts, questions, temperature = temperature, use_images = use_images)
 
 def test_model():
-    testset = VQADataset("valid_vlm_diagram_QA")
+    testset = VQADataset("valid_vlm_image")
     vlm = BaseVLM()
 
     import random
