@@ -1758,7 +1758,7 @@ def calculate_veering_backing(layer):
 def get_data():
     data = []
 
-    with (Path("./skew_data_2024060100_2024083112.jsonl")).open() as f:
+    with (Path("../data/skew_data_2024060100_2024083112.jsonl")).open() as f:
         for line in f:
             data.append(json.loads(line))
 
