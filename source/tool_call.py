@@ -1353,6 +1353,7 @@ def layer_description(tdd, rotation, label):
 def generate_prompt_response_vlm(row):
     system_message = "You are a weather forecaster analyzing atmospheric soundings shown in a Skew-T log-P diagram\nThe diagram uses a logarithmic vertical pressure axis (hPa), so pressure layers are not evenly spaced. Use the following visual anchors:\nLower layer (1000-850 hPa): This is located in the bottom quarter of the diagram, close to the surface. It represents the boundary layer where surface temperature, dew point, and CIN typically appear.\nMid layer (850-500 hPa): Appears in the second quarter from the bottom of the plot. This region often contains most of the CAPE and developing updrafts.\nUpper layer (500-250 hPa): This is around the middle third of the diagram, despite covering less pressure range. This layer includes the top of convection (EL), cirrus clouds, and upper-level wind shear.\nUse the following visual references:\nRed line: temperature profile\nGreen line: dew point temperature\nBlue shaded area: CAPE (Convective Available Potential Energy)\nYellow shaded area: CIN (Convective Inhibition)\nWind barbs: on the right-hand side, changing with height\nKey interpretation rules:\nWhere the red and green lines are close, the layer is moist; far apart implies dryness.\nThe LFC is the bottom of the blue area; the EL is the top of the blue area.\nClockwise turning wind barbs with height suggest veering (warm air advection); counterclockwise suggests backing."
 
+    '''
     user_prompt = "Below is a brief summary of the atmospheric sounding:\n\n"
     if row['cape'] > 0:
         user_prompt += f"CAPE: {row['cape']:.0f} J/kg\n"
@@ -1370,7 +1371,8 @@ def generate_prompt_response_vlm(row):
     user_prompt += layer_description(row['avg_ttd_upper'], row['rotation_upper'], "Upper")
 
     user_prompt += "\n\nPlease describe the atmospheric profile based on the provided Skew-T log-P diagram and the summary. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High."
-    #user_prompt = "Please describe the atmospheric profile based on the provided Skew-T log-P diagram. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High."
+    '''    
+    user_prompt = "Please describe the atmospheric profile based on the provided Skew-T log-P diagram. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High."
 
     response = ""
     if row['cape'] > 0:
@@ -1758,7 +1760,7 @@ def calculate_veering_backing(layer):
 def get_data():
     data = []
 
-    with (Path("../data/skew_data_2024060100_2024083112.jsonl")).open() as f:
+    with (Path("./data/skew_data_2024060100_2024083112.jsonl")).open() as f:
         for line in f:
             data.append(json.loads(line))
 
