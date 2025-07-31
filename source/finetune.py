@@ -107,19 +107,6 @@ class VQADatasetForTraining(Dataset):
     
         # Prepare input text in chat format
         if self.use_images:
-            '''
-            input_message = [
-                    {
-                        "role": "system",
-                        "content": [
-                        #   {"type": "text", "text": "You are a weather forecaster analyzing atmospheric soundings shown in Skew-T log-P diagrams.\n\n- Lower layer: 1000–850 hPa\n- Mid layer: 850–500 hPa\n- Upper layer: 500–250 hPa\n\nDiagram legend:\n- Red line: temperature\n- Green line: dew point temperature\n- Shaded blue area: CAPE (Convective Available Potential Energy)\n- Shaded yellow area: CIN (Convective Inhibition)\n\nMeteorological interpretation tips:\n- When the red and green lines are close, the atmosphere is moist.\n- The LFC (Level of Free Convection) is the lowest point of the blue area.\n- The EL (Equilibrium Level) is the highest point of the blue area.\n- Wind barbs are displayed on the right side. If they rotate clockwise with height, it indicates veering winds; if counterclockwise, it indicates backing.\n\nPlease describe the atmospheric profile based on the provided Skew-T log-P diagram and the brief atmospheric sounding summary. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High."}
-                            {"type": "text", "text": "You are a weather forecaster analyzing atmospheric soundings shown in Skew-T log-P diagrams.\n\n- Lower layer: 1000–850 hPa\n- Mid layer: 850–500 hPa\n- Upper layer: 500–250 hPa\n\nDiagram legend:\n- Red line: temperature\n- Green line: dew point temperature\n- Shaded blue area: CAPE (Convective Available Potential Energy)\n- Shaded yellow area: CIN (Convective Inhibition)\n\nMeteorological interpretation tips:\n- When the red and green lines are close, the atmosphere is moist.\n- The LFC (Level of Free Convection) is the lowest point of the blue area.\n- The EL (Equilibrium Level) is the highest point of the blue area.\n- Wind barbs are displayed on the right side. If they rotate clockwise with height, it indicates veering winds; if counterclockwise, it indicates backing.\n\nPlease describe the atmospheric profile based on the provided Skew-T log-P diagram. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High."}
-                        #   {"type": "text", "text": "You are a weather forecaster analyzing atmospheric soundings shown in Skew-T log-P diagrams.\n\n- Lower layer: 1000–850 hPa\n- Mid layer: 850–500 hPa\n- Upper layer: 500–250 hPa\n\nDiagram legend:\n- Red line: temperature\n- Green line: dew point temperature\n- Shaded blue area: CAPE (Convective Available Potential Energy)\n- Shaded yellow area: CIN (Convective Inhibition)\n\nMeteorological interpretation tips:\n- When the red and green lines are close, the atmosphere is moist.\n- The LFC (Level of Free Convection) is the lowest point of the blue area.\n- The EL (Equilibrium Level) is the highest point of the blue area.\n- Wind barbs are displayed on the right side. If they rotate clockwise with height, it indicates veering winds; if counterclockwise, it indicates backing.\n\nReason carefully, and please provide the predicted precipitation probability category: Low, Moderate, High, or Very High."}
-                        ]
-                    },
-                    #{"role": "user", "content": [{"type": "image"}, {"type": "text", "text": item["question"]}]}]
-                    {"role": "user", "content": [{"type": "image"}]}]
-            '''
             input_message = [
                     {
                         "role": "system",
@@ -133,15 +120,13 @@ class VQADatasetForTraining(Dataset):
                     {
                         "role": "system",
                         "content": [
-                           {"type": "text", "text": "First, extract numeric values from the given texts.\nNext, analyze the weather based on the numeric values from the atmospheric sounding summary. Reason carefully and explain your conclusions.\nBased on your reasoning, please provide the predicted precipitation probability category (Low, Moderate, High, or Very High)."}
+                            {"type": "text", "text": item["system"]}
                         ]
                     },
                     {"role": "user", "content": [{"type": "text", "text": item["question"]}]}]
 
         prompt = self.processor.apply_chat_template(input_message, add_generation_prompt=True)
-        #full_text = prompt + item["answer"]  # append the answer to the prompt
         full_text = f"{prompt} {item['answer']}{self.processor.tokenizer.eos_token}"
-        #print(full_text)
 
         if self.use_images:
             inputs = self.processor(
@@ -262,15 +247,7 @@ def train(
 
     # Prepare datasets
     train_dataset = VQADataset(train_dataset_name, data_dir)
-    #for d in train_dataset:
-    #    print(d)
-    #    break
-
     train_dataset = VQADatasetForTraining(train_dataset, processor, use_images = use_images)
-    #for d in train_dataset:
-    #    print(d)
-    #    print(d['input_ids'].shape, d['attention_mask'].shape, d['labels'].shape)
-    #    exit()
 
     if processor.tokenizer.pad_token is None:
         processor.tokenizer.pad_token = processor.tokenizer.eos_token
@@ -341,28 +318,6 @@ def evaluate(model: nn.Module, val_loader: DataLoader) -> float:
     model.train()
     return val_loss / len(val_loader)
 
-
-def demo_train():
-    train(
-        train_dataset_name="train_demo",
-        output_dir="demo_train",
-        num_train_epochs=1,
-        per_device_train_batch_size=1,
-        num_workers=1,
-        gradient_accumulation_steps=1,
-        learning_rate=1e-8,
-    )
-
-'''
-def test_model(ckpt_path: str, val_dataset: str = "valid_grader"):
-    testset = VQADataset(val_dataset)
-
-    llm = load(ckpt_path)
-
-    benchmark_result = benchmark(llm, testset, 128)
-    print(benchmark_result.accuracy)
-'''
-
 def test_model(ckpt_path: str):
     import random
 
@@ -392,8 +347,5 @@ def test_model(ckpt_path: str):
         print(f"A: {a}\n\n")
 
 if __name__ == "__main__":
-    #from fire import Fire
-
-    #Fire({"demo_train": demo_train, "train": train, "test": test_model})
     train()
     test_model("./vlm_sft_QA_2.2B")

@@ -13,7 +13,7 @@ class VQADataset:
         Initialize the VQA dataset.
 
         Args:
-            split: Dataset split ('train', 'valid_grader', 'train_demo')
+            split: Dataset split ('train', 'valid')
             data_dir: Directory containing the dataset (default: DATA_DIR)
         """
         self.data_dir = data_dir or DATA_DIR
