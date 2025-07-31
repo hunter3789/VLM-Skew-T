@@ -10,8 +10,8 @@ from torch.utils.tensorboard import SummaryWriter
 from transformers import AutoProcessor, Trainer, TrainingArguments
 from typing import Union
 
-from base_vlm import BaseVLM
-from data import VQADataset
+from source.base_vlm import BaseVLM
+from source.data import VQADataset
 
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 

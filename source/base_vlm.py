@@ -9,7 +9,7 @@ import torch
 from transformers import AutoModelForVision2Seq, AutoProcessor, AutoConfig
 from transformers.image_utils import load_image
 
-from data import VQADataset
+from source.data import VQADataset
 
 DEVICE = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
 
