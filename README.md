@@ -18,4 +18,8 @@ The dense yellow layer (CIN) near the surface reflects significant inhibition, l
 The blue-shaded area starts high in the atmosphere, suggesting parcels face strong resistance to ascent and require substantial forcing to become buoyant.  
 The CAPE area reaches into the upper levels, suggesting a storm environment with robust vertical development.  
 The wide separation of red and green lines throughout the profile indicates a dry atmosphere with little cloud potential.  
-Based on the analysis, the probability of precipitation is very high."
+Based on the analysis, the probability of precipitation is very high."  
+
+**Self-attention map**:  
+
+![sample](self_attention_fine_tune.png)
