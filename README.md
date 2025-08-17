@@ -14,8 +14,10 @@ https://colab.research.google.com/github/hunter3789/VLM-Skew-T/blob/main/source/
 The blue-shaded area begins low in the atmosphere, indicating that parcels become buoyant with minimal ascent. This favors easy convective initiation.
 The CAPE area reaches into the upper levels, suggesting a storm environment with robust vertical development.
 The sounding shows potential for cirriform cloud development due to upper-level moisture.
-Based on the analysis, the probability of precipitation is low."
-![demo](sample.png)
+Based on the analysis, the probability of precipitation is low."  
+
+![sample](sample_skew.png)  
+
 "response (inference)": "A moderately sized blue-shaded region (CAPE) implies moderate instability, which may support thunderstorm development if lifting is present.
 The dense yellow layer (CIN) near the surface reflects significant inhibition, likely preventing convection unless strong forcing is present.
 The blue-shaded area starts high in the atmosphere, suggesting parcels face strong resistance to ascent and require substantial forcing to become buoyant.
