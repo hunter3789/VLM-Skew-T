@@ -21,5 +21,4 @@ The wide separation of red and green lines throughout the profile indicates a dr
 Based on the analysis, the probability of precipitation is very high."  
 
 **Self-attention map**:  
-
 ![sample](self_attention_fine_tune.png)
