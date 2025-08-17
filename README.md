@@ -10,11 +10,7 @@ Training and validation dataset is at https://osf.io/4n3uh/files/osfstorage
 https://colab.research.google.com/github/hunter3789/VLM-Skew-T/blob/main/source/demo.ipynb
   
 **Sample result**:  
-"assistant": "The expansive and deep blue region (CAPE) reflects a highly unstable atmosphere, primed for thunderstorm formation.
-The blue-shaded area begins low in the atmosphere, indicating that parcels become buoyant with minimal ascent. This favors easy convective initiation.
-The CAPE area reaches into the upper levels, suggesting a storm environment with robust vertical development.
-The sounding shows potential for cirriform cloud development due to upper-level moisture.
-Based on the analysis, the probability of precipitation is low."  
+"user": "Please describe the atmospheric profile based on the provided Skew-T log-P diagram. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High.",
 
 ![sample](sample_skew.png)  
 
