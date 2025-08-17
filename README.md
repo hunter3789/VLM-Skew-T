@@ -10,7 +10,7 @@ Training and validation dataset is at https://osf.io/4n3uh/files/osfstorage
 https://colab.research.google.com/github/hunter3789/VLM-Skew-T/blob/main/source/demo.ipynb
   
 **Sample result**:  
-"user": "Please describe the atmospheric profile based on the provided Skew-T log-P diagram. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High.",
+"user": "Please describe the atmospheric profile based on the provided Skew-T log-P diagram. Reason carefully, and conclude with a precipitation probability category: Low, Moderate, High, or Very High.",  
 
 ![sample](sample_skew.png)  
 
