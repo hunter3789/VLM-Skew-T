@@ -1,4 +1,4 @@
-# A Vision-Language Model interpreting Skew-T log-P diagrams
+# A Vision-Language Model interpreting Skew-T
 
 **Flow-chart**  
 ![Flowchart](Flowchart.png)
